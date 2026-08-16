@@ -131,7 +131,6 @@
         let balanceKey = 'user_balance_' + userId;
         let adCountKey = 'user_adCount_' + userId;
 
-        // নতুন ইউজার ১০০ পয়েন্ট বোনাস পাবে
         let balance = localStorage.getItem(balanceKey) ? parseInt(localStorage.getItem(balanceKey)) : 100;
         let adCount = localStorage.getItem(adCountKey) ? parseInt(localStorage.getItem(adCountKey)) : 0;
 
@@ -142,7 +141,6 @@
         document.getElementById("balance").innerText = balance;
         document.getElementById("adCount").innerText = adCount;
 
-        // আপনার বটের ইউজারনেম নিচে দিন
         let botUsername = "mabulbasar386_bot"; 
         let referralLink = `https://t.me/${botUsername}?start=ref_${userId}`;
         document.getElementById("refLink").innerText = referralLink;
@@ -186,12 +184,16 @@
                 return;
             }
 
-            // আপনার টেলিগ্রাম ইউজারনেম
             let adminUsername = "mabulbasar386"; 
             let message = `নতুন রিচার্জ রিকোয়েস্ট!\nইউজার আইডি: ${userId}\nনম্বর: ${phone}\nঅপারেটর: ${operator}\nপয়েন্ট খরচ: 100`;
             
             let url = `https://t.me/${adminUsername}?text=` + encodeURIComponent(message);
-            window.Telegram.WebApp.openTelegramLink(url);
+            
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.openTelegramLink(url);
+            } else {
+                window.open(url, '_blank');
+            }
 
             balance -= 100;
             localStorage.setItem(balanceKey, balance);

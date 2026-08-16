@@ -131,6 +131,7 @@
         let balanceKey = 'user_balance_' + userId;
         let adCountKey = 'user_adCount_' + userId;
 
+        // নতুন ইউজার ১০০ পয়েন্ট বোনাস পাবে
         let balance = localStorage.getItem(balanceKey) ? parseInt(localStorage.getItem(balanceKey)) : 100;
         let adCount = localStorage.getItem(adCountKey) ? parseInt(localStorage.getItem(adCountKey)) : 0;
 
@@ -141,7 +142,8 @@
         document.getElementById("balance").innerText = balance;
         document.getElementById("adCount").innerText = adCount;
 
-        let botUsername = "my_recharge_x_bot"; 
+        // আপনার বটের ইউজারনেম নিচে দিন
+        let botUsername = "mabulbasar386_bot"; 
         let referralLink = `https://t.me/${botUsername}?start=ref_${userId}`;
         document.getElementById("refLink").innerText = referralLink;
 
@@ -179,36 +181,22 @@
                 return;
             }
 
-            const bdPhoneRegex = /^(?:\+88|88)?(01[3-9]\d{8})$/;
-            if (!bdPhoneRegex.test(phone)) {
+            if (phone.length < 11) {
                 statusDiv.innerText = "দয়া করে সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন!";
                 return;
             }
 
-            statusDiv.innerText = "রিকোয়েস্ট পাঠানো হচ্ছে...";
+            // আপনার টেলিগ্রাম ইউজারনেম
+            let adminUsername = "mabulbasar386"; 
+            let message = `নতুন রিচার্জ রিকোয়েস্ট!\nইউজার আইডি: ${userId}\nনম্বর: ${phone}\nঅপারেটর: ${operator}\nপয়েন্ট খরচ: 100`;
+            
+            let url = `https://t.me/${adminUsername}?text=` + encodeURIComponent(message);
+            window.Telegram.WebApp.openTelegramLink(url);
 
-            const botToken = "8041766840:AAEDaeZ3GA2Sd_VxYvBc17P8UeiaGd9IFeU"; 
-            const adminChatId = "7100342395"; 
-
-            let message = `🔔 নতুন রিচার্জ রিকোয়েস্ট!\n\n🆔 ইউজার আইডি: ${userId}\n📱 নম্বর: ${phone}\n📶 অপারেটর: ${operator}\n💰 পয়েন্ট খরচ: 100`;
-
-            let telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${adminChatId}&text=` + encodeURIComponent(message);
-
-            fetch(telegramUrl)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.ok) {
-                        balance -= 100;
-                        localStorage.setItem(balanceKey, balance);
-                        document.getElementById("balance").innerText = balance;
-                        statusDiv.innerText = "আপনার রিচার্জ রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে!";
-                    } else {
-                        statusDiv.innerText = "রিকোয়েস্ট পাঠাতে সমস্যা হয়েছে।";
-                    }
-                })
-                .catch(error => {
-                    statusDiv.innerText = "নেটওয়ার্ক ত্রুটি!";
-                });
+            balance -= 100;
+            localStorage.setItem(balanceKey, balance);
+            document.getElementById("balance").innerText = balance;
+            statusDiv.innerText = "আপনার রিচার্জ রিকোয়েস্ট পাঠানো হয়েছে!";
         }
 
         function shareReferral() {

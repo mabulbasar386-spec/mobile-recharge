@@ -29,6 +29,15 @@
             width: 90%;
             max-width: 400px;
         }
+        .balance-box {
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #38bdf8;
+        }
         button {
             background-color: #2563eb;
             color: white;
@@ -37,17 +46,23 @@
             font-size: 16px;
             border-radius: 8px;
             cursor: pointer;
-            margin-top: 15px;
+            margin-top: 10px;
             width: 100%;
             font-weight: bold;
         }
         button:hover {
             background-color: #1d4ed8;
         }
+        .recharge-btn {
+            background-color: #16a34a;
+        }
+        .recharge-btn:hover {
+            background-color: #15803d;
+        }
         #status {
-            margin-top: 15px;
+            margin-top: 10px;
             font-size: 14px;
-            color: #38bdf8;
+            color: #facc15;
         }
     </style>
 </head>
@@ -55,10 +70,19 @@
 
     <div class="container">
         <h2>মোবাইল রিচার্জ</h2>
-        <p>বিজ্ঞাপন দেখে রিচার্জ পয়েন্ট অর্জন করুন!</p>
+        
+        <!-- ব্যালেন্স ও অ্যাড দেখার কাউন্টার -->
+        <div class="balance-box">
+            পয়েন্ট: <span id="balance">0</span> | দেখা অ্যাড: <span id="adCount">0</span>টি
+        </div>
+
+        <p>বিজ্ঞাপন দেখে পয়েন্ট অর্জন করুন এবং রিচার্জ করুন!</p>
         
         <!-- অ্যাড দেখার বাটন -->
         <button onclick="showAd()">বিজ্ঞাপন দেখুন (Watch Ad)</button>
+        
+        <!-- মোবাইল রিচার্জ বাটন -->
+        <button class="recharge-btn" onclick="openRecharge()">মোবাইল রিচার্জ করুন</button>
         
         <div id="status"></div>
     </div>
@@ -67,7 +91,13 @@
         // টেলিগ্রাম ওয়েব অ্যাপ ইনিশialize করা
         window.Telegram.WebApp.ready();
 
-        // নতুন ব্লক আইডি int-43084 এখানে সেট করা হয়েছে
+        let balance = localStorage.getItem('user_balance') ? parseInt(localStorage.getItem('user_balance')) : 0;
+        let adCount = localStorage.getItem('user_adCount') ? parseInt(localStorage.getItem('user_adCount')) : 0;
+
+        document.getElementById("balance").innerText = balance;
+        document.getElementById("adCount").innerText = adCount;
+
+        // Adsgram ইনিশialize করা
         const adController = window.Adsgram.init({ blockId: "int-43084" });
 
         function showAd() {
@@ -76,15 +106,31 @@
 
             adController.show()
                 .then((result) => {
-                    // ইউজার সফলভাবে বিজ্ঞাপন দেখা শেষ করলে
-                    statusDiv.innerText = "ধন্যবাদ! আপনি সফলভাবে বিজ্ঞাপনটি দেখেছেন।";
-                    console.log("Ad completed:", result);
+                    // ইউজার বিজ্ঞাপন সফলভাবে দেখলে পয়েন্ট ও কাউন্ট বাড়বে
+                    balance += 10; // প্রতি অ্যাডে ১০ পয়েন্ট করে যোগ হবে
+                    adCount += 1;
+
+                    localStorage.setItem('user_balance', balance);
+                    localStorage.setItem('user_adCount', adCount);
+
+                    document.getElementById("balance").innerText = balance;
+                    document.getElementById("adCount").innerText = adCount;
+
+                    statusDiv.innerText = "অভিনন্দন! আপনি ১০ পয়েন্ট পেয়েছেন।";
                 })
                 .catch((result) => {
-                    // ইউজার অ্যাড না দেখে কেটে দিলে বা সমস্যা হলে
-                    statusDiv.innerText = "বিজ্ঞাপনটি সম্পন্ন হয়নি বা দেখা বাতিল করা হয়েছে।";
-                    console.log("Ad error/cancelled:", result);
+                    statusDiv.innerText = "বিজ্ঞাপনটি সম্পন্ন হয়নি বা দেখা বাতিল করা হয়েছে。";
                 });
+        }
+
+        function openRecharge() {
+            const statusDiv = document.getElementById("status");
+            if (balance < 100) {
+                statusDiv.innerText = "রিচার্জ করতে কমপক্ষে ১০০ পয়েন্ট প্রয়োজন!";
+            } else {
+                statusDiv.innerText = "আপনার রিচার্জ রিকোয়েস্ট সফলভাবে জমা হয়েছে!";
+                // এখানে রিচার্জের পরবর্তী প্রসেস বা বট বায়ো লজিক যুক্ত করতে পারেন
+            }
         }
     </script>
 

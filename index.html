@@ -51,22 +51,23 @@
         let user = window.Telegram.WebApp.initDataUnsafe.user;
         let userId = user ? user.id : 'guest_' + Math.floor(Math.random() * 1000000);
         
-        let balanceKey = 'user_balance_v6_' + userId;
-        let adCountKey = 'user_adCount_v6_' + userId;
-        let hourlyCountKey = 'user_hourly_count_v6_' + userId;
-        let hourlyTimerKey = 'user_hourly_timer_v6_' + userId;
-        let refKey = 'referral_bonus_claimed_' + userId;
-        let referCountKey = 'user_refer_count_' + userId; // রেফার গণনার জন্য কি
+        // ফিক্সড স্টোরেজ কি (Key) - যাতে পরবর্তীতে পয়েন্ট মুছে না যায়
+        let balanceKey = 'app_balance_fixed_' + userId;
+        let adCountKey = 'app_adCount_fixed_' + userId;
+        let hourlyCountKey = 'app_hourly_count_fixed_' + userId;
+        let hourlyTimerKey = 'app_hourly_timer_fixed_' + userId;
+        let refKey = 'app_referral_claimed_fixed_' + userId;
+        let referCountKey = 'app_refer_count_fixed_' + userId;
 
         let balance = localStorage.getItem(balanceKey) ? parseInt(localStorage.getItem(balanceKey)) : 0;
         let adCount = localStorage.getItem(adCountKey) ? parseInt(localStorage.getItem(adCountKey)) : 0;
         let referCount = localStorage.getItem(referCountKey) ? parseInt(localStorage.getItem(referCountKey)) : 0;
 
-        // নতুন ইউজারের জন্য রেফারেল বোনাস চেক
+        // রেফারেল বোনাস চেক
         function checkReferral() {
             let startParam = window.Telegram.WebApp.initDataUnsafe.start_param;
             if (startParam && startParam.startsWith('ref_') && !localStorage.getItem(refKey)) {
-                balance += 20; // ২০ পয়েন্ট বোনাস
+                balance += 20; 
                 localStorage.setItem(balanceKey, balance);
                 localStorage.setItem(refKey, 'true');
                 document.getElementById("status").innerText = "অভিনন্দন! রেফারেল থেকে ২০ পয়েন্ট বোনাস পেয়েছেন!";
@@ -151,9 +152,6 @@
         function shareReferral() {
             let shareUrl = `https://t.me/share/url?url=` + encodeURIComponent(referralLink) + `&text=বিনা পয়সায় মোবাইল রিচার্জ নিতে এই অ্যাপে জয়েন করুন!`;
             window.Telegram.WebApp.openTelegramLink(shareUrl);
-            
-            // কেউ লিংক শেয়ার করলে রেফার কাউન્ટ সাময়িকভাবে বাড়ানোর অপশন (বা রিয়েল সার্ভার থাকলে সেখানে আপডেট হবে)
-            // নোট: এটি লোকাল কাউন্ট দেখানোর জন্য। ১০০% নিখুঁত রেফার কাউন্টের জন্য ব্যাকএন্ড ডাটাবেস প্রয়োজন হয়।
         }
     </script>
 </body>

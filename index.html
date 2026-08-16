@@ -100,18 +100,27 @@
             পয়েন্ট: <span id="balance">0</span> | দেখা অ্যাড: <span id="adCount">0</span>টি
         </div>
 
-        <p>বিজ্ঞাপন দেখে পয়েন্ট অর্জন করুন!<br><small style="color: #38bdf8;">(১০০ পয়েন্ট = ১০ টাকা)</small></p>
+        <p>বিজ্ঞাপন দেখে পয়েন্ট অর্জন করুন!</p>
         
         <button onclick="showAd()">বিজ্ঞাপন দেখুন (Watch Ad)</button>
 
+        <!-- মোবাইল নম্বর লেখার ঘর -->
         <input type="number" id="phoneNumber" placeholder="আপনার মোবাইল নম্বর (017xxxxxxxx)" />
         
+        <!-- অপারেটর সিলেক্ট করার ঘর -->
         <select id="operator">
             <option value="GP">Grameenphone (GP)</option>
             <option value="Robi">Robi</option>
             <option value="Banglalink">Banglalink</option>
             <option value="Airtel">Airtel</option>
             <option value="Teletalk">Teletalk</option>
+        </select>
+
+        <!-- রিচার্জ অ্যামাউন্ট বা প্ল্যান সিলেক্ট করার ঘর -->
+        <select id="rechargePlan">
+            <option value="30">৩০ পয়েন্ট = ৩ টাকা</option>
+            <option value="50">৫০ পয়েন্ট = ৫ টাকা</option>
+            <option value="100">১০০ পয়েন্ট = ১০ টাকা</option>
         </select>
 
         <button class="recharge-btn" onclick="openRecharge()">মোবাইল রিচার্জ করুন</button>
@@ -175,9 +184,13 @@
             const statusDiv = document.getElementById("status");
             const phone = document.getElementById("phoneNumber").value;
             const operator = document.getElementById("operator").value;
+            const requiredPoints = parseInt(document.getElementById("rechargePlan").value);
+            
+            // পয়েন্ট অনুযায়ী টাকার হিসাব (যেমন: ৩০ পয়েন্ট = ৩ টাকা)
+            const takaAmount = requiredPoints / 10;
 
-            if (balance < 100) {
-                statusDiv.innerText = "রিচার্জ করতে কমপক্ষে ১০০ পয়েন্ট প্রয়োজন!";
+            if (balance < requiredPoints) {
+                statusDiv.innerText = `এই রিচার্জের জন্য আপনার ${requiredPoints} পয়েন্ট প্রয়োজন!`;
                 return;
             }
 
@@ -186,20 +199,18 @@
                 return;
             }
 
-            // পয়েন্ট কেটে নেওয়া
-            balance -= 100;
+            // ইউজারের অ্যাকাউন্ট থেকে সিলেক্ট করা পয়েন্ট কেটে নেওয়া হবে
+            balance -= requiredPoints;
             localStorage.setItem(balanceKey, balance);
             document.getElementById("balance").innerText = balance;
 
-            // আপনার টেলিগ্রাম ইউজারনেম (যেখানে মেসেজ যাবে)
+            // আপনার টেলিগ্রাম ইউজারনেম
             let adminUsername = "mabulbasar386"; 
-            let takaAmount = 10;
-            
             let message = `🔔 নতুন রিচার্জ রিকোয়েস্ট!\n\n` +
                           `👤 ইউজার আইডি: ${userId}\n` +
                           `📞 নম্বর: ${phone}\n` +
                           `📱 অপারেটর: ${operator}\n` +
-                          `💰 পরিমাণ: ${takaAmount} টাকা (১০০ পয়েন্ট)\n\n` +
+                          `💰 পরিমাণ: ${takaAmount} টাকা (${requiredPoints} পয়েন্ট)\n\n` +
                           `স্ট্যাটাস: পেন্ডিং ⏳`;
             
             let url = `https://t.me/${adminUsername}?text=` + encodeURIComponent(message);

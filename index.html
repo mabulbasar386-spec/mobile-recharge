@@ -25,7 +25,7 @@
         <div class="balance-box">
             পয়েন্ট: <span id="balance">0</span> | দেখা অ্যাড: <span id="adCount">0</span>টি
         </div>
-        <p style="font-size: 12px; color: #94a3b8;">নিয়ম: ২৫০ পয়েন্ট = ২০ টাকা রিচার্জ (প্রতি ঘণ্টায় সর্বোচ্চ ১৫টি অ্যাড)</p>
+        <p style="font-size: 12px; color: #94a3b8;">নিয়ম: ২৫০ পয়েন্ট = ২০ টাকা রিচার্জ | রেফার বোনাস: ২০ পয়েন্ট</p>
         
         <button onclick="showAd()">বিজ্ঞাপন দেখুন (Watch Ad)</button>
 
@@ -49,18 +49,32 @@
         window.Telegram.WebApp.ready();
         let user = window.Telegram.WebApp.initDataUnsafe.user;
         let userId = user ? user.id : 'guest_' + Math.floor(Math.random() * 1000000);
-        let balanceKey = 'user_balance_v2_' + userId; // ক্যাশ এড়ানোর জন্য ভার্সন পরিবর্তন করা হয়েছে
-        let adCountKey = 'user_adCount_v2_' + userId;
-        let hourlyCountKey = 'user_hourly_count_v2_' + userId;
-        let hourlyTimerKey = 'user_hourly_timer_v2_' + userId;
+        let balanceKey = 'user_balance_v5_' + userId;
+        let adCountKey = 'user_adCount_v5_' + userId;
+        let hourlyCountKey = 'user_hourly_count_v5_' + userId;
+        let hourlyTimerKey = 'user_hourly_timer_v5_' + userId;
+        let refKey = 'referral_bonus_claimed_' + userId;
 
         let balance = localStorage.getItem(balanceKey) ? parseInt(localStorage.getItem(balanceKey)) : 0;
         let adCount = localStorage.getItem(adCountKey) ? parseInt(localStorage.getItem(adCountKey)) : 0;
 
+        // রেফারেল বোনাস চেক
+        function checkReferral() {
+            let startParam = window.Telegram.WebApp.initDataUnsafe.start_param;
+            if (startParam && startParam.startsWith('ref_') && !localStorage.getItem(refKey)) {
+                balance += 20;
+                localStorage.setItem(balanceKey, balance);
+                localStorage.setItem(refKey, 'true');
+                document.getElementById("status").innerText = "অভিনন্দন! রেফারেল বোনাস হিসেবে ২০ পয়েন্ট পেয়েছেন!";
+            }
+        }
+        checkReferral();
+
         document.getElementById("balance").innerText = balance;
         document.getElementById("adCount").innerText = adCount;
 
-        let referralLink = `https://t.me/mabulbasar386_bot?start=ref_${userId}`;
+        // বটের সঠিক ইউজারনেম বসানো হয়েছে
+        let referralLink = `https://t.me/bd_mobile_recharge_bot?start=ref_${userId}`;
         document.getElementById("refLink").innerText = referralLink;
 
         const adController = window.Adsgram.init({ blockId: "int-43084" });
@@ -85,7 +99,7 @@
             statusDiv.innerText = "বিজ্ঞাপন লোড হচ্ছে...";
 
             adController.show().then(() => {
-                balance += 1; // সঠিকভাবে প্রতি অ্যাডে মাত্র ১ পয়েন্ট যোগ হবে
+                balance += 1; 
                 adCount += 1;
                 hourlyCount += 1;
 

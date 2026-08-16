@@ -25,7 +25,7 @@
         <div class="balance-box">
             পয়েন্ট: <span id="balance">0</span> | দেখা অ্যাড: <span id="adCount">0</span>টি
         </div>
-        <p style="font-size: 12px; color: #94a3b8;">নিয়ম: ২৫০ পয়েন্ট (অ্যাড) = ২০ টাকা | ১০০০ পয়েন্ট = ৮০ টাকা (প্রতি ঘণ্টায় সর্বোচ্চ ১৫টি)</p>
+        <p style="font-size: 12px; color: #94a3b8;">নিয়ম: ২৫০ পয়েন্ট = ২০ টাকা রিচার্জ (প্রতি ঘণ্টায় সর্বোচ্চ ১৫টি অ্যাড)</p>
         
         <button onclick="showAd()">বিজ্ঞাপন দেখুন (Watch Ad)</button>
 
@@ -49,10 +49,10 @@
         window.Telegram.WebApp.ready();
         let user = window.Telegram.WebApp.initDataUnsafe.user;
         let userId = user ? user.id : 'guest_' + Math.floor(Math.random() * 1000000);
-        let balanceKey = 'user_balance_' + userId;
-        let adCountKey = 'user_adCount_' + userId;
-        let hourlyCountKey = 'user_hourly_count_' + userId;
-        let hourlyTimerKey = 'user_hourly_timer_' + userId;
+        let balanceKey = 'user_balance_v2_' + userId; // ক্যাশ এড়ানোর জন্য ভার্সন পরিবর্তন করা হয়েছে
+        let adCountKey = 'user_adCount_v2_' + userId;
+        let hourlyCountKey = 'user_hourly_count_v2_' + userId;
+        let hourlyTimerKey = 'user_hourly_timer_v2_' + userId;
 
         let balance = localStorage.getItem(balanceKey) ? parseInt(localStorage.getItem(balanceKey)) : 0;
         let adCount = localStorage.getItem(adCountKey) ? parseInt(localStorage.getItem(adCountKey)) : 0;
@@ -85,7 +85,7 @@
             statusDiv.innerText = "বিজ্ঞাপন লোড হচ্ছে...";
 
             adController.show().then(() => {
-                balance += 1; // প্রতি অ্যাডে ১ পয়েন্ট
+                balance += 1; // সঠিকভাবে প্রতি অ্যাডে মাত্র ১ পয়েন্ট যোগ হবে
                 adCount += 1;
                 hourlyCount += 1;
 
@@ -111,7 +111,7 @@
             const statusDiv = document.getElementById("status");
 
             if (balance < 250) {
-                statusDiv.innerText = "কমপক্ষে ২৫০ পয়েন্ট (২৫০টি অ্যাড) হলে রিচার্জ নিতে পারবেন!";
+                statusDiv.innerText = "রিচার্জের জন্য কমপক্ষে ২৫০ পয়েন্ট প্রয়োজন!";
                 return;
             }
             if (phone.length < 11) {
@@ -124,7 +124,7 @@
             
             window.Telegram.WebApp.openTelegramLink(url);
 
-            balance = 0; // সব পয়েন্ট কেটে নেওয়া হবে
+            balance = 0;
             localStorage.setItem(balanceKey, balance);
             document.getElementById("balance").innerText = balance;
             statusDiv.innerText = "আপনার রিচার্জ রিকোয়েস্ট পাঠানো হয়েছে!";

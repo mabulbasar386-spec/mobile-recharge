@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>মোবাইল রিচার্জ - মিনি অ্যাপ</title>
-    <!-- টেলিগ্রাম ওয়েব অ্যাপের অফিশিয়াল স্ক্রিপ্ট -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Adsgram SDK স্ক্রিপ্ট -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
         body {
@@ -71,24 +69,19 @@
     <div class="container">
         <h2>মোবাইল রিচার্জ</h2>
         
-        <!-- ব্যালেন্স ও অ্যাড দেখার কাউন্টার -->
         <div class="balance-box">
             পয়েন্ট: <span id="balance">0</span> | দেখা অ্যাড: <span id="adCount">0</span>টি
         </div>
 
         <p>বিজ্ঞাপন দেখে পয়েন্ট অর্জন করুন এবং রিচার্জ করুন!</p>
         
-        <!-- অ্যাড দেখার বাটন -->
         <button onclick="showAd()">বিজ্ঞাপন দেখুন (Watch Ad)</button>
-        
-        <!-- মোবাইল রিচার্জ বাটন -->
         <button class="recharge-btn" onclick="openRecharge()">মোবাইল রিচার্জ করুন</button>
         
         <div id="status"></div>
     </div>
 
     <script>
-        // টেলিগ্রাম ওয়েব অ্যাপ ইনিশialize করা
         window.Telegram.WebApp.ready();
 
         let balance = localStorage.getItem('user_balance') ? parseInt(localStorage.getItem('user_balance')) : 0;
@@ -97,7 +90,6 @@
         document.getElementById("balance").innerText = balance;
         document.getElementById("adCount").innerText = adCount;
 
-        // Adsgram ইনিশialize করা
         const adController = window.Adsgram.init({ blockId: "int-43084" });
 
         function showAd() {
@@ -106,8 +98,7 @@
 
             adController.show()
                 .then((result) => {
-                    // ইউজার বিজ্ঞাপন সফলভাবে দেখলে পয়েন্ট ও কাউন্ট বাড়বে
-                    balance += 10; // প্রতি অ্যাডে ১০ পয়েন্ট করে যোগ হবে
+                    balance += 10;
                     adCount += 1;
 
                     localStorage.setItem('user_balance', balance);
@@ -119,7 +110,7 @@
                     statusDiv.innerText = "অভিনন্দন! আপনি ১০ পয়েন্ট পেয়েছেন।";
                 })
                 .catch((result) => {
-                    statusDiv.innerText = "বিজ্ঞাপনটি সম্পন্ন হয়নি বা দেখা বাতিল করা হয়েছে。";
+                    statusDiv.innerText = "বিজ্ঞাপনটি সম্পন্ন হয়নি বা দেখা বাতিল করা হয়েছে।";
                 });
         }
 
@@ -129,7 +120,6 @@
                 statusDiv.innerText = "রিচার্জ করতে কমপক্ষে ১০০ পয়েন্ট প্রয়োজন!";
             } else {
                 statusDiv.innerText = "আপনার রিচার্জ রিকোয়েস্ট সফলভাবে জমা হয়েছে!";
-                // এখানে রিচার্জের পরবর্তী প্রসেস বা বট বায়ো লজিক যুক্ত করতে পারেন
             }
         }
     </script>

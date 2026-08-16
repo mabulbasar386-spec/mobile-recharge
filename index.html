@@ -9,10 +9,13 @@
     <style>
         body { font-family: Arial, sans-serif; background-color: #0f172a; color: #ffffff; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 10px; }
         .container { text-align: center; background: #1e293b; padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; box-sizing: border-box; }
-        .balance-box { background: #0f172a; padding: 15px; border-radius: 8px; margin-bottom: 15px; color: #38bdf8; font-weight: bold; font-size: 18px; }
+        .balance-box { background: #0f172a; padding: 15px; border-radius: 8px; margin-bottom: 15px; color: #38bdf8; font-weight: bold; font-size: 16px; }
         input, select { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 16px; box-sizing: border-box; }
         button { background-color: #2563eb; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer; }
+        .ad-btn { background-color: #2563eb; }
+        .ad-btn:hover { background-color: #1d4ed8; }
         .recharge-btn { background-color: #16a34a; }
+        .recharge-btn:hover { background-color: #15803d; }
         #status { margin-top: 15px; color: #facc15; font-size: 14px; }
     </style>
 </head>
@@ -20,9 +23,14 @@
 
     <div class="container">
         <h2>মোবাইল রিচার্জ</h2>
-        <div class="balance-box">পয়েন্ট: <span id="balance">0</span> | দেখা অ্যাড: <span id="adCount">0</span>টি</div>
         
-        <button onclick="showAd()">বিজ্ঞাপন দেখুন (Watch Ad)</button>
+        <!-- ব্যালেন্স এবং অ্যাড কাউন্ট দেখার বক্স -->
+        <div class="balance-box">
+            পয়েন্ট: <span id="balance">0</span> | দেখা অ্যাড: <span id="adCount">0</span>টি
+        </div>
+        
+        <!-- বিজ্ঞাপন দেখার বাটন -->
+        <button class="ad-btn" onclick="showAd()">বিজ্ঞাপন দেখুন (Watch Ad)</button>
 
         <input type="number" id="phoneNumber" placeholder="মোবাইল নম্বর (017xxxxxxxx)" />
         
@@ -60,6 +68,7 @@
         const adController = window.Adsgram.init({ blockId: "int-43084" });
 
         function showAd() {
+            document.getElementById("status").innerText = "বিজ্ঞাপন লোড হচ্ছে...";
             adController.show().then(() => {
                 balance += 10;
                 adCount += 1;
@@ -92,7 +101,6 @@
             localStorage.setItem(balanceKey, balance);
             document.getElementById("balance").innerText = balance;
 
-            // আপনার টেলিগ্রাম ইউজারনেম যেখানে মেসেজ যাবে
             let adminUsername = "mabulbasar386"; 
             let msg = `🔔 নতুন রিচার্জ রিকোয়েস্ট!\n\n` +
                       `👤 ইউজার আইডি: ${userId}\n` +
@@ -103,7 +111,6 @@
 
             let url = "https://t.me/" + adminUsername + "?text=" + encodeURIComponent(msg);
             
-            // টেলিগ্রাম মিনি অ্যাপ থেকে সরাসরি আপনার ইনবক্সে লিংক ওপেন করা
             window.Telegram.WebApp.openTelegramLink(url);
             document.getElementById("status").innerText = "রিচার্জ রিকোয়েস্ট পাঠানো হয়েছে! সেন্ড বাটনে ক্লিক করুন।";
         }

@@ -25,7 +25,7 @@
         <div class="balance-box">
             পয়েন্ট: <span id="balance">0</span> | দেখা অ্যাড: <span id="adCount">0</span>টি
         </div>
-        <p style="font-size: 13px; color: #94a3b8;">নিয়ম: ২৫০ পয়েন্ট = ২০ টাকা রিচার্জ (প্রতি ঘণ্টায় সর্বোচ্চ ১৫টি অ্যাড)</p>
+        <p style="font-size: 12px; color: #94a3b8;">নিয়ম: ২৫০ পয়েন্ট (অ্যাড) = ২০ টাকা | ১০০০ পয়েন্ট = ৮০ টাকা (প্রতি ঘণ্টায় সর্বোচ্চ ১৫টি)</p>
         
         <button onclick="showAd()">বিজ্ঞাপন দেখুন (Watch Ad)</button>
 
@@ -71,13 +71,11 @@
             let hourlyTimer = localStorage.getItem(hourlyTimerKey) ? parseInt(localStorage.getItem(hourlyTimerKey)) : 0;
             let hourlyCount = localStorage.getItem(hourlyCountKey) ? parseInt(localStorage.getItem(hourlyCountKey)) : 0;
 
-            // ১ ঘণ্টা পার হয়েছে কিনা চেক করা (৩৬০০০০০ মিলি-সেকেন্ড = ১ ঘণ্টা)
             if (now - hourlyTimer > 3600000) {
                 hourlyCount = 0;
                 localStorage.setItem(hourlyTimerKey, now);
             }
 
-            // ঘণ্টায় ১৫টি অ্যাড দেখার লিমিট চেক
             if (hourlyCount >= 15) {
                 let remainingMinutes = Math.ceil((3600000 - (now - hourlyTimer)) / 60000);
                 statusDiv.innerText = `এই ঘণ্টায় আপনার ১৫টি অ্যাড দেখার সীমা শেষ! ${remainingMinutes} মিনিট পর আবার চেষ্টা করুন।`;
@@ -87,7 +85,7 @@
             statusDiv.innerText = "বিজ্ঞাপন লোড হচ্ছে...";
 
             adController.show().then(() => {
-                balance += 10;
+                balance += 1; // প্রতি অ্যাডে ১ পয়েন্ট
                 adCount += 1;
                 hourlyCount += 1;
 
@@ -101,7 +99,7 @@
 
                 document.getElementById("balance").innerText = balance;
                 document.getElementById("adCount").innerText = adCount;
-                statusDiv.innerText = "অভিনন্দন! ১০ পয়েন্ট যোগ হয়েছে।";
+                statusDiv.innerText = "অভিনন্দন! ১ পয়েন্ট যোগ হয়েছে।";
             }).catch(() => {
                 statusDiv.innerText = "বিজ্ঞাপনটি দেখা সম্পন্ন হয়নি।";
             });
@@ -113,7 +111,7 @@
             const statusDiv = document.getElementById("status");
 
             if (balance < 250) {
-                statusDiv.innerText = "রিচার্জের জন্য কমপক্ষে ২৫০ পয়েন্ট প্রয়োজন!";
+                statusDiv.innerText = "কমপক্ষে ২৫০ পয়েন্ট (২৫০টি অ্যাড) হলে রিচার্জ নিতে পারবেন!";
                 return;
             }
             if (phone.length < 11) {
@@ -121,12 +119,12 @@
                 return;
             }
 
-            let message = `নতুন রিচার্জ রিকোয়েস্ট!\nইউজার আইডি: ${userId}\nনম্বর: ${phone}\nঅপারেটর: ${operator}\nপয়েন্ট খরচ: 250`;
+            let message = `নতুন রিচার্জ রিকোয়েস্ট!\nইউজার আইডি: ${userId}\nনম্বর: ${phone}\nঅপারেটর: ${operator}\nপয়েন্ট খরচ: ${balance}`;
             let url = `https://t.me/Jou904?text=` + encodeURIComponent(message);
             
             window.Telegram.WebApp.openTelegramLink(url);
 
-            balance -= 250;
+            balance = 0; // সব পয়েন্ট কেটে নেওয়া হবে
             localStorage.setItem(balanceKey, balance);
             document.getElementById("balance").innerText = balance;
             statusDiv.innerText = "আপনার রিচার্জ রিকোয়েস্ট পাঠানো হয়েছে!";

@@ -26,7 +26,7 @@
             পয়েন্ট: <span id="balance">0</span> | অ্যাড: <span id="adCount">0</span>টি<br>
             রেফার: <span id="referCount">0</span> জন
         </div>
-        <p style="font-size: 12px; color: #94a3b8;">নিয়ম: ২৫০ পয়েন্ট = ২০ টাকা | রেফার বোনাস: ২০ পয়েন্ট</p>
+        <p style="font-size: 12px; color: #94a3b8;">নিয়ম: ২৫০ পয়েন্ট = ২০ টাকা | রেফার বোনাস: উভয়পক্ষ ২০ পয়েন্ট</p>
         
         <button onclick="showAd()">বিজ্ঞাপন দেখুন (Watch Ad)</button>
 
@@ -51,7 +51,6 @@
         let user = window.Telegram.WebApp.initDataUnsafe.user;
         let userId = user ? user.id : 'guest_' + Math.floor(Math.random() * 1000000);
         
-        // ফিক্সড স্টোরেজ কি (Key) - যাতে পরবর্তীতে পয়েন্ট মুছে না যায়
         let balanceKey = 'app_balance_fixed_' + userId;
         let adCountKey = 'app_adCount_fixed_' + userId;
         let hourlyCountKey = 'app_hourly_count_fixed_' + userId;
@@ -63,14 +62,30 @@
         let adCount = localStorage.getItem(adCountKey) ? parseInt(localStorage.getItem(adCountKey)) : 0;
         let referCount = localStorage.getItem(referCountKey) ? parseInt(localStorage.getItem(referCountKey)) : 0;
 
-        // রেফারেল বোনাস চেক
+        // রেফারেল বোনাস চেক ও উভয়কে ২০ পয়েন্ট দেওয়ার লজিক
         function checkReferral() {
             let startParam = window.Telegram.WebApp.initDataUnsafe.start_param;
             if (startParam && startParam.startsWith('ref_') && !localStorage.getItem(refKey)) {
+                
+                // ১. নতুন ইউজারকে ২০ পয়েন্ট দেওয়া
                 balance += 20; 
                 localStorage.setItem(balanceKey, balance);
                 localStorage.setItem(refKey, 'true');
-                document.getElementById("status").innerText = "অভিনন্দন! রেফারেল থেকে ২০ পয়েন্ট বোনাস পেয়েছেন!";
+                
+                // ২. রেফারকারীকে ২০ পয়েন্ট এবং রেফার কাউন্ট ১ বাড়ানো
+                let referrerId = startParam.replace('ref_', '');
+                if (referrerId && referrerId != userId) {
+                    let refBalanceKey = 'app_balance_fixed_' + referrerId;
+                    let refCountKeyUser = 'app_refer_count_fixed_' + referrerId;
+                    
+                    let currRefBalance = localStorage.getItem(refBalanceKey) ? parseInt(localStorage.getItem(refBalanceKey)) : 0;
+                    let currRefCount = localStorage.getItem(refCountKeyUser) ? parseInt(localStorage.getItem(refCountKeyUser)) : 0;
+                    
+                    localStorage.setItem(refBalanceKey, currRefBalance + 20); 
+                    localStorage.setItem(refCountKeyUser, currRefCount + 1); 
+                }
+
+                document.getElementById("status").innerText = "অভিনন্দন! রেফারেল থেকে আপনি ২০ পয়েন্ট বোনাস পেয়েছেন!";
             }
         }
         checkReferral();
@@ -138,14 +153,15 @@
                 return;
             }
 
-            let message = `নতুন রিচার্জ রিকোয়েস্ট!\nইউজার আইডি: ${userId}\nনম্বর: ${phone}\nঅপারেটর: ${operator}\nপয়েন্ট খরচ: ${balance}`;
+            // নির্দিষ্ট ২৫০ পয়েন্ট কমানো হলো
+            balance -= 250;
+            localStorage.setItem(balanceKey, balance);
+            document.getElementById("balance").innerText = balance;
+
+            let message = `নতুন রিচার্জ রিকোয়েস্ট!\nইউজার আইডি: ${userId}\nনম্বর: ${phone}\nঅপারেটর: ${operator}\nপয়েন্ট খরচ: ২৫০`;
             let url = `https://t.me/Jou904?text=` + encodeURIComponent(message);
             
             window.Telegram.WebApp.openTelegramLink(url);
-
-            balance = 0;
-            localStorage.setItem(balanceKey, balance);
-            document.getElementById("balance").innerText = balance;
             statusDiv.innerText = "আপনার রিচার্জ রিকোয়েস্ট পাঠানো হয়েছে!";
         }
 

@@ -13,47 +13,34 @@
         input, select { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 16px; box-sizing: border-box; }
         button { background-color: #2563eb; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer; }
         .recharge-btn { background-color: #16a34a; }
-        .recharge-btn:hover { background-color: #15803d; }
-        #status { margin-top: 15px; color: #facc15; font-size: 14px; }
     </style>
 </head>
 <body>
-
     <div class="container">
         <h2>মোবাইল রিচার্জ</h2>
         <div class="balance-box">পয়েন্ট: <span id="balance">0</span></div>
-        
-        <button onclick="showAd()">বিজ্ঞাপন দেখুন (Watch Ad)</button>
-
+        <button onclick="showAd()">বিজ্ঞাপন দেখুন</button>
         <input type="number" id="phoneNumber" placeholder="মোবাইল নম্বর (017xxxxxxxx)" />
-        
         <select id="operator">
             <option value="GP">Grameenphone (GP)</option>
             <option value="Robi">Robi</option>
             <option value="Banglalink">Banglalink</option>
             <option value="Airtel">Airtel</option>
         </select>
-
         <select id="rechargePlan">
             <option value="30">৩০ পয়েন্ট (৩ টাকা)</option>
             <option value="50">৫০ পয়েন্ট (৫ টাকা)</option>
             <option value="100">১০০ পয়েন্ট (১০ টাকা)</option>
         </select>
-
         <button class="recharge-btn" onclick="openRecharge()">মোবাইল রিচার্জ করুন</button>
-        <div id="status"></div>
     </div>
 
     <script>
         window.Telegram.WebApp.ready();
-        
-        // ইউজার আইডি সংগ্রহ
         let user = window.Telegram.WebApp.initDataUnsafe.user;
         let userId = user ? user.id : 'guest_' + Math.floor(Math.random() * 1000000);
         let balanceKey = 'user_balance_' + userId;
-
-        // ব্যালেন্স সেটআপ (নতুন ইউজার ১০০ বোনাস পাবে)
-        let balance = localStorage.getItem(balanceKey) ? parseInt(localStorage.getItem(balanceKey)) : 100;
+        let balance = parseInt(localStorage.getItem(balanceKey) || 100);
         document.getElementById("balance").innerText = balance;
 
         const adController = window.Adsgram.init({ blockId: "int-43084" });
@@ -63,9 +50,7 @@
                 balance += 10;
                 localStorage.setItem(balanceKey, balance);
                 document.getElementById("balance").innerText = balance;
-                document.getElementById("status").innerText = "১০ পয়েন্ট পেয়েছেন!";
-            }).catch(() => {
-                document.getElementById("status").innerText = "অ্যাড দেখা শেষ হয়নি।";
+                alert("১০ পয়েন্ট সফলভাবে যোগ হয়েছে!");
             });
         }
 
@@ -74,26 +59,16 @@
             let plan = parseInt(document.getElementById("rechargePlan").value);
             let operator = document.getElementById("operator").value;
 
-            if (balance < plan) {
-                alert("আপনার পর্যাপ্ত পয়েন্ট নেই!");
-                return;
-            }
-            if (phone.length < 11) {
-                alert("সঠিক ১১ ডিজিটের নম্বর দিন!");
-                return;
-            }
+            if (balance < plan) { alert("পর্যাপ্ত পয়েন্ট নেই!"); return; }
+            if (phone.length < 11) { alert("সঠিক ১১ ডিজিটের নম্বর দিন!"); return; }
 
-            // পয়েন্ট কেটে নেওয়া
             balance -= plan;
             localStorage.setItem(balanceKey, balance);
             document.getElementById("balance").innerText = balance;
 
-            // অ্যাডমিনের কাছে মেসেজ পাঠানো
-            let msg = `🔔 নতুন রিচার্জ রিকোয়েস্ট!\n👤 ইউজার আইডি: ${userId}\n📞 নম্বর: ${phone}\n📱 অপারেটর: ${operator}\n💰 পরিমাণ: ${plan/10} টাকা`;
-            let url = "https://t.me/mabulbasar386?text=" + encodeURIComponent(msg);
-            
-            window.Telegram.WebApp.openTelegramLink(url);
-            document.getElementById("status").innerText = "রিচার্জ রিকোয়েস্ট পাঠানো হয়েছে!";
+            let msg = `নতুন রিচার্জ রিকোয়েস্ট!\nইউজার আইডি: ${userId}\nনম্বর: ${phone}\nঅপারেটর: ${operator}\nপরিমাণ: ${plan/10} টাকা`;
+            // সরাসরি ইউজারনেমে মেসেজ লিংক ওপেন করা
+            window.open("https://t.me/mabulbasar386?text=" + encodeURIComponent(msg), "_blank");
         }
     </script>
 </body>

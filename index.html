@@ -3,18 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>মোবাইল রিচার্জ</title>
+    <title>মোবাইল রিচার্জ - মিনি অ্যাপ</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #0f172a; color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 10px; }
-        .container { text-align: center; background: #1e293b; padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; box-sizing: border-box; }
-        .balance-box { background: #0f172a; padding: 15px; border-radius: 8px; margin-bottom: 15px; color: #38bdf8; font-weight: bold; font-size: 18px; }
-        input, select { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 16px; box-sizing: border-box; }
-        button { background-color: #2563eb; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer; }
-        .ad-btn { background-color: #2563eb; }
-        .recharge-btn { background-color: #16a34a; }
-        #status { margin-top: 15px; color: #facc15; font-size: 14px; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0f172a;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            background: #1e293b;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 400px;
+        }
+        .balance-box {
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #1d4ed8;
+        }
+        .recharge-btn {
+            background-color: #16a34a;
+        }
+        .recharge-btn:hover {
+            background-color: #15803d;
+        }
+        .ref-btn {
+            background-color: #d97706;
+        }
+        .ref-btn:hover {
+            background-color: #b45309;
+        }
+        #status {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #facc15;
+        }
+        .ref-box {
+            margin-top: 15px;
+            background: #0f172a;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #94a3b8;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
@@ -23,86 +97,111 @@
         <h2>মোবাইল রিচার্জ</h2>
         
         <div class="balance-box">
-            পয়েন্ট: <span id="balance">100</span>
+            পয়েন্ট: <span id="balance">0</span> | দেখা অ্যাড: <span id="adCount">0</span>টি
         </div>
-        
-        <button class="ad-btn" onclick="showAd()">বিজ্ঞাপন দেখুন (Watch Ad)</button>
 
-        <input type="number" id="phoneNumber" placeholder="মোবাইল নম্বর (017xxxxxxxx)" />
+        <p>বিজ্ঞাপন দেখে পয়েন্ট অর্জন করুন!</p>
+        
+        <button onclick="showAd()">বিজ্ঞাপন দেখুন (Watch Ad)</button>
+
+        <input type="number" id="phoneNumber" placeholder="আপনার মোবাইল নম্বর দিন (যেমন: 017xxxxxxxx)" />
         
         <select id="operator">
             <option value="GP">Grameenphone (GP)</option>
             <option value="Robi">Robi</option>
             <option value="Banglalink">Banglalink</option>
             <option value="Airtel">Airtel</option>
-        </select>
-
-        <select id="rechargePlan">
-            <option value="30">৩০ পয়েন্ট = ৩ টাকা</option>
-            <option value="50">৫০ পয়েন্ট = ৫ টাকা</option>
-            <option value="100">১০০ পয়েন্ট = ১০ টাকা</option>
+            <option value="Teletalk">Teletalk</option>
         </select>
 
         <button class="recharge-btn" onclick="openRecharge()">মোবাইল রিচার্জ করুন</button>
+        
+        <button class="ref-btn" onclick="shareReferral()">বন্ধুকে ইনভাইট করুন (Share)</button>
+        <div class="ref-box">আপনার রেফার লিংক: <br><span id="refLink">লোড হচ্ছে...</span></div>
+
         <div id="status"></div>
     </div>
 
     <script>
         window.Telegram.WebApp.ready();
-        
+
         let user = window.Telegram.WebApp.initDataUnsafe.user;
         let userId = user ? user.id : 'guest_' + Math.floor(Math.random() * 1000000);
+
         let balanceKey = 'user_balance_' + userId;
+        let adCountKey = 'user_adCount_' + userId;
 
+        // নতুন ইউজার ১০০ পয়েন্ট বোনাস পাবে
         let balance = localStorage.getItem(balanceKey) ? parseInt(localStorage.getItem(balanceKey)) : 100;
-        document.getElementById("balance").innerText = balance;
+        let adCount = localStorage.getItem(adCountKey) ? parseInt(localStorage.getItem(adCountKey)) : 0;
 
-        // Adsgram ইনিশিয়ালাইজেশন
+        if (!localStorage.getItem(balanceKey)) {
+            localStorage.setItem(balanceKey, balance);
+        }
+
+        document.getElementById("balance").innerText = balance;
+        document.getElementById("adCount").innerText = adCount;
+
+        // আপনার বটের ইউজারনেম নিচে দিন
+        let botUsername = "mabulbasar386_bot"; 
+        let referralLink = `https://t.me/${botUsername}?start=ref_${userId}`;
+        document.getElementById("refLink").innerText = referralLink;
+
         const adController = window.Adsgram.init({ blockId: "int-43084" });
 
         function showAd() {
-            document.getElementById("status").innerText = "বিজ্ঞাপন লোড হচ্ছে...";
-            adController.show().then(() => {
-                // অ্যাড দেখা সম্পন্ন হলে পয়েন্ট যোগ হবে
-                balance += 10;
-                localStorage.setItem(balanceKey, balance);
-                document.getElementById("balance").innerText = balance;
-                document.getElementById("status").innerText = "সফলভাবে বিজ্ঞাপন দেখেছেন, ১০ পয়েন্ট যোগ হয়েছে!";
-            }).catch((result) => {
-                // ইউজার অ্যাড স্কিপ করলে বা ফেল করলে
-                document.getElementById("status").innerText = "বিজ্ঞাপন দেখা সম্পন্ন হয়নি।";
-            });
+            const statusDiv = document.getElementById("status");
+            statusDiv.innerText = "বিজ্ঞাপন লোড হচ্ছে...";
+
+            adController.show()
+                .then((result) => {
+                    balance += 10;
+                    adCount += 1;
+
+                    localStorage.setItem(balanceKey, balance);
+                    localStorage.setItem(adCountKey, adCount);
+
+                    document.getElementById("balance").innerText = balance;
+                    document.getElementById("adCount").innerText = adCount;
+
+                    statusDiv.innerText = "অভিনন্দন! আপনি ১০ পয়েন্ট পেয়েছেন।";
+                })
+                .catch((result) => {
+                    statusDiv.innerText = "বিজ্ঞাপনটি দেখা সম্পন্ন হয়নি।";
+                });
         }
 
         function openRecharge() {
-            let phone = document.getElementById("phoneNumber").value;
-            let plan = parseInt(document.getElementById("rechargePlan").value);
-            let operator = document.getElementById("operator").value;
+            const statusDiv = document.getElementById("status");
+            const phone = document.getElementById("phoneNumber").value;
+            const operator = document.getElementById("operator").value;
 
-            if (balance < plan) {
-                alert("আপনার পর্যাপ্ত পয়েন্ট নেই!");
+            if (balance < 100) {
+                statusDiv.innerText = "রিচার্জ করতে কমপক্ষে ১০০ পয়েন্ট প্রয়োজন!";
                 return;
             }
+
             if (phone.length < 11) {
-                alert("সঠিক ১১ ডিজিটের নম্বর দিন!");
+                statusDiv.innerText = "দয়া করে সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন!";
                 return;
             }
 
-            balance -= plan;
+            // আপনার টেলিগ্রাম ইউজারনেম
+            let adminUsername = "mabulbasar386"; 
+            let message = `নতুন রিচার্জ রিকোয়েস্ট!\nইউজার আইডি: ${userId}\nনম্বর: ${phone}\nঅপারেটর: ${operator}\nপয়েন্ট খরচ: 100`;
+            
+            let url = `https://t.me/${adminUsername}?text=` + encodeURIComponent(message);
+            window.Telegram.WebApp.openTelegramLink(url);
+
+            balance -= 100;
             localStorage.setItem(balanceKey, balance);
             document.getElementById("balance").innerText = balance;
+            statusDiv.innerText = "আপনার রিচার্জ রিকোয়েস্ট পাঠানো হয়েছে!";
+        }
 
-            let adminUsername = "mabulbasar386"; 
-            let msg = `🔔 নতুন রিচার্জ রিকোয়েস্ট!\n\n` +
-                      `👤 ইউজার আইডি: ${userId}\n` +
-                      `📞 নম্বর: ${phone}\n` +
-                      `📱 অপারেটর: ${operator}\n` +
-                      `💰 পরিমাণ: ${plan/10} টাকা (${plan} পয়েন্ট)\n\n` +
-                      `স্ট্যাটাস: পেন্ডিং ⏳`;
-
-            let url = "https://t.me/" + adminUsername + "?text=" + encodeURIComponent(msg);
-            window.Telegram.WebApp.openTelegramLink(url);
-            document.getElementById("status").innerText = "রিচার্জ রিকোয়েস্ট পাঠানো হয়েছে!";
+        function shareReferral() {
+            let shareUrl = `https://t.me/share/url?url=` + encodeURIComponent(referralLink) + `&text=` + encodeURIComponent("বিনা পয়সায় মোবাইল রিচার্জ নিতে এই অ্যাপে জয়েন করুন!");
+            window.Telegram.WebApp.openTelegramLink(shareUrl);
         }
     </script>
 </body>

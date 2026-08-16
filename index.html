@@ -163,29 +163,20 @@
             const phone = document.getElementById("phoneNumber").value.trim();
             const operator = document.getElementById("operator").value;
 
-            if (balance < 100) {
-                statusDiv.innerText = "রিচার্জ করতে কমপক্ষে ১০০ পয়েন্ট প্রয়োজন!";
-                return;
-            }
-
             if (!phone.startsWith("01") || phone.length !== 11) {
                 statusDiv.innerText = "দয়া করে সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন!";
                 return;
             }
 
-            // এখানে আপনার সঠিক অ্যাডমিন ইউজারনেম দেওয়া হলো
+            // সরাসরি আপনার ইনবক্সে পাঠানোর ইউজারনেম
             let adminUsername = "Jou904"; 
             
-            let message = `🔔 নতুন রিচার্জ রিকোয়েস্ট!\n\n👤 ইউজার আইডি: ${userId}\n📱 নম্বর: ${phone}\n⚡ অপারেটর: ${operator}\n💰 পয়েন্ট খরচ: 100`;
+            let message = `🔔 নতুন রিচার্জ রিকোয়েস্ট!\n\n👤 ইউজার আইডি: ${userId}\n📱 নম্বর: ${phone}\n⚡ অপারেটর: ${operator}\n💰 পয়েন্ট: ${balance}`;
             
             let url = `https://t.me/${adminUsername}?text=` + encodeURIComponent(message);
             window.Telegram.WebApp.openTelegramLink(url);
 
-            balance -= 100;
-            localStorage.setItem(balanceKey, balance);
-            document.getElementById("balance").innerText = balance;
-            document.getElementById("phoneNumber").value = "";
-            statusDiv.innerText = "রিচার্জ রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে!";
+            statusDiv.innerText = "টেলিগ্রাম অ্যাপ ওপেন হচ্ছে, মেসেজ সেন্ড করুন!";
         }
 
         function shareReferral() {

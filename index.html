@@ -36,6 +36,17 @@
             font-weight: bold;
             color: #38bdf8;
         }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
         button {
             background-color: #2563eb;
             color: white;
@@ -73,9 +84,21 @@
             পয়েন্ট: <span id="balance">0</span> | দেখা অ্যাড: <span id="adCount">0</span>টি
         </div>
 
-        <p>বিজ্ঞাপন দেখে পয়েন্ট অর্জন করুন এবং রিচার্জ করুন!</p>
+        <p>বিজ্ঞাপন দেখে পয়েন্ট অর্জন করুন!</p>
         
         <button onclick="showAd()">বিজ্ঞাপন দেখুন (Watch Ad)</button>
+
+        <!-- মোবাইল নম্বর ও অপারেটর লেখার ঘর -->
+        <input type="number" id="phoneNumber" placeholder="আপনার মোবাইল নম্বর দিন (যেমন: 017xxxxxxxx)" />
+        
+        <select id="operator">
+            <option value="GP">Grameenphone (GP)</option>
+            <option value="Robi">Robi</option>
+            <option value="Banglalink">Banglalink</option>
+            <option value="Airtel">Airtel</option>
+            <option value="Teletalk">Teletalk</option>
+        </select>
+
         <button class="recharge-btn" onclick="openRecharge()">মোবাইল রিচার্জ করুন</button>
         
         <div id="status"></div>
@@ -116,11 +139,31 @@
 
         function openRecharge() {
             const statusDiv = document.getElementById("status");
+            const phone = document.getElementById("phoneNumber").value;
+            const operator = document.getElementById("operator").value;
+
             if (balance < 100) {
                 statusDiv.innerText = "রিচার্জ করতে কমপক্ষে ১০০ পয়েন্ট প্রয়োজন!";
-            } else {
-                statusDiv.innerText = "আপনার রিচার্জ রিকোয়েস্ট সফলভাবে জমা হয়েছে!";
+                return;
             }
+
+            if (phone.length < 11) {
+                statusDiv.innerText = "দয়া করে সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন!";
+                return;
+            }
+
+            // আপনার টেলিগ্রাম ইউজারনেমটি এখানে বসাবেন (যেমন: mabulbasar386 এর জায়গায় আপনার আসল ইউজারনেম দিন)
+            let adminUsername = "mabulbasar386"; 
+            let message = `নতুন রিচার্জ রিকোয়েস্ট!\nনম্বর: ${phone}\nঅপারেটর: ${operator}\nপয়েন্ট: 100`;
+            
+            let url = `https://t.me/${adminUsername}?text=` + encodeURIComponent(message);
+            window.Telegram.WebApp.openTelegramLink(url);
+
+            // সফলভাবে রিকোয়েস্ট পাঠানোর পর পয়েন্ট কেটে নেওয়া হবে
+            balance -= 100;
+            localStorage.setItem('user_balance', balance);
+            document.getElementById("balance").innerText = balance;
+            statusDiv.innerText = "আপনার রিচার্জ রিকোয়েস্ট পাঠানো হয়েছে!";
         }
     </script>
 

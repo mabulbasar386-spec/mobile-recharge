@@ -15,8 +15,9 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 10px;
         }
         .container {
             text-align: center;
@@ -32,7 +33,7 @@
             padding: 10px;
             border-radius: 8px;
             margin-bottom: 15px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: #38bdf8;
         }
@@ -68,10 +69,25 @@
         .recharge-btn:hover {
             background-color: #15803d;
         }
+        .ref-btn {
+            background-color: #d97706;
+        }
+        .ref-btn:hover {
+            background-color: #b45309;
+        }
         #status {
             margin-top: 10px;
             font-size: 14px;
             color: #facc15;
+        }
+        .ref-box {
+            margin-top: 15px;
+            background: #0f172a;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #94a3b8;
+            word-break: break-all;
         }
     </style>
 </head>
@@ -84,12 +100,11 @@
             পয়েন্ট: <span id="balance">0</span> | দেখা অ্যাড: <span id="adCount">0</span>টি
         </div>
 
-        <p>বিজ্ঞাপন দেখে পয়েন্ট অর্জন করুন!</p>
+        <p>বিজ্ঞাপন দেখে পয়েন্ট অর্জন করুন!<br><small style="color: #38bdf8;">(১০০ পয়েন্ট = ১০ টাকা)</small></p>
         
         <button onclick="showAd()">বিজ্ঞাপন দেখুন (Watch Ad)</button>
 
-        <!-- মোবাইল নম্বর ও অপারেটর লেখার ঘর -->
-        <input type="number" id="phoneNumber" placeholder="আপনার মোবাইল নম্বর দিন (যেমন: 017xxxxxxxx)" />
+        <input type="number" id="phoneNumber" placeholder="আপনার মোবাইল নম্বর (017xxxxxxxx)" />
         
         <select id="operator">
             <option value="GP">Grameenphone (GP)</option>
@@ -101,17 +116,36 @@
 
         <button class="recharge-btn" onclick="openRecharge()">মোবাইল রিচার্জ করুন</button>
         
+        <button class="ref-btn" onclick="shareReferral()">বন্ধুকে ইনভাইট করুন (Share)</button>
+        <div class="ref-box">আপনার রেফার লিংক: <br><span id="refLink">লোড হচ্ছে...</span></div>
+
         <div id="status"></div>
     </div>
 
     <script>
         window.Telegram.WebApp.ready();
 
-        let balance = localStorage.getItem('user_balance') ? parseInt(localStorage.getItem('user_balance')) : 0;
-        let adCount = localStorage.getItem('user_adCount') ? parseInt(localStorage.getItem('user_adCount')) : 0;
+        let user = window.Telegram.WebApp.initDataUnsafe.user;
+        let userId = user ? user.id : 'guest_' + Math.floor(Math.random() * 1000000);
+
+        let balanceKey = 'user_balance_' + userId;
+        let adCountKey = 'user_adCount_' + userId;
+
+        // নতুন ইউজার ১০০ পয়েন্ট ওয়েলকাম বোনাস পাবে
+        let balance = localStorage.getItem(balanceKey) ? parseInt(localStorage.getItem(balanceKey)) : 100;
+        let adCount = localStorage.getItem(adCountKey) ? parseInt(localStorage.getItem(adCountKey)) : 0;
+
+        if (!localStorage.getItem(balanceKey)) {
+            localStorage.setItem(balanceKey, balance);
+        }
 
         document.getElementById("balance").innerText = balance;
         document.getElementById("adCount").innerText = adCount;
+
+        // আপনার বটের ইউজারনেম এখানে দিন
+        let botUsername = "mabulbasar386_bot"; 
+        let referralLink = `https://t.me/${botUsername}?start=ref_${userId}`;
+        document.getElementById("refLink").innerText = referralLink;
 
         const adController = window.Adsgram.init({ blockId: "int-43084" });
 
@@ -124,8 +158,8 @@
                     balance += 10;
                     adCount += 1;
 
-                    localStorage.setItem('user_balance', balance);
-                    localStorage.setItem('user_adCount', adCount);
+                    localStorage.setItem(balanceKey, balance);
+                    localStorage.setItem(adCountKey, adCount);
 
                     document.getElementById("balance").innerText = balance;
                     document.getElementById("adCount").innerText = adCount;
@@ -133,7 +167,7 @@
                     statusDiv.innerText = "অভিনন্দন! আপনি ১০ পয়েন্ট পেয়েছেন।";
                 })
                 .catch((result) => {
-                    statusDiv.innerText = "বিজ্ঞাপনটি সম্পন্ন হয়নি বা দেখা বাতিল করা হয়েছে।";
+                    statusDiv.innerText = "বিজ্ঞাপনটি দেখা সম্পন্ন হয়নি।";
                 });
         }
 
@@ -152,20 +186,32 @@
                 return;
             }
 
-            // আপনার টেলিগ্রাম ইউজারনেমটি এখানে বসাবেন (যেমন: mabulbasar386 এর জায়গায় আপনার আসল ইউজারনেম দিন)
+            // পয়েন্ট কেটে নেওয়া
+            balance -= 100;
+            localStorage.setItem(balanceKey, balance);
+            document.getElementById("balance").innerText = balance;
+
+            // আপনার টেলিগ্রাম ইউজারনেম (যেখানে মেসেজ যাবে)
             let adminUsername = "mabulbasar386"; 
-            let message = `নতুন রিচার্জ রিকোয়েস্ট!\nনম্বর: ${phone}\nঅপারেটর: ${operator}\nপয়েন্ট: 100`;
+            let takaAmount = 10;
+            
+            let message = `🔔 নতুন রিচার্জ রিকোয়েস্ট!\n\n` +
+                          `👤 ইউজার আইডি: ${userId}\n` +
+                          `📞 নম্বর: ${phone}\n` +
+                          `📱 অপারেটর: ${operator}\n` +
+                          `💰 পরিমাণ: ${takaAmount} টাকা (১০০ পয়েন্ট)\n\n` +
+                          `স্ট্যাটাস: পেন্ডিং ⏳`;
             
             let url = `https://t.me/${adminUsername}?text=` + encodeURIComponent(message);
             window.Telegram.WebApp.openTelegramLink(url);
 
-            // সফলভাবে রিকোয়েস্ট পাঠানোর পর পয়েন্ট কেটে নেওয়া হবে
-            balance -= 100;
-            localStorage.setItem('user_balance', balance);
-            document.getElementById("balance").innerText = balance;
-            statusDiv.innerText = "আপনার রিচার্জ রিকোয়েস্ট পাঠানো হয়েছে!";
+            statusDiv.innerText = "রিচার্জ রিকোয়েস্ট আপনার কাছে পাঠানো হয়েছে!";
+        }
+
+        function shareReferral() {
+            let shareUrl = `https://t.me/share/url?url=` + encodeURIComponent(referralLink) + `&text=` + encodeURIComponent("বিনা পয়সায় মোবাইল রিচার্জ নিতে এই অ্যাপে জয়েন করুন!");
+            window.Telegram.WebApp.openTelegramLink(shareUrl);
         }
     </script>
-
 </body>
 </html>

@@ -132,7 +132,6 @@
         document.getElementById("balance").innerText = balance;
         document.getElementById("adCount").innerText = adCount;
 
-        // আপনার বটের ইউজারনেম এখানে দেওয়া আছে
         let botUsername = "my_recharge_x_bot"; 
         let referralLink = `https://t.me/${botUsername}?start=ref_${userId}`;
         document.getElementById("refLink").innerText = referralLink;
@@ -174,17 +173,19 @@
                 return;
             }
 
-            // মেসেজ ফরম্যাট যা সরাসরি আপনার বটের চ্যাটে চলে যাবে
+            // এখানে সরাসরি আপনার টেলিগ্রাম ইউজারনেম সেট করা আছে
+            let adminUsername = "mabulbasar386"; 
+            
             let message = `🔔 নতুন রিচার্জ রিকোয়েস্ট!\n\n👤 ইউজার আইডি: ${userId}\n📱 নম্বর: ${phone}\n⚡ অপারেটর: ${operator}\n💰 পয়েন্ট খরচ: 100`;
             
-            let url = `https://t.me/${botUsername}?text=` + encodeURIComponent(message);
+            let url = `https://t.me/${adminUsername}?text=` + encodeURIComponent(message);
             window.Telegram.WebApp.openTelegramLink(url);
 
             balance -= 100;
             localStorage.setItem(balanceKey, balance);
             document.getElementById("balance").innerText = balance;
             document.getElementById("phoneNumber").value = "";
-            statusDiv.innerText = "আপনার রিচার্জ রিকোয়েস্ট বটের মাধ্যমে পাঠানো হয়েছে!";
+            statusDiv.innerText = "রিচার্জ রিকোয়েস্ট সফলভাবে অ্যাডমিনের কাছে পাঠানো হয়েছে!";
         }
 
         function shareReferral() {

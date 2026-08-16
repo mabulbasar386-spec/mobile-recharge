@@ -63,10 +63,18 @@
         button:hover {
             background-color: #1d4ed8;
         }
-        .recharge-btn { background-color: #16a34a; }
-        .recharge-btn:hover { background-color: #15803d; }
-        .ref-btn { background-color: #d97706; }
-        .ref-btn:hover { background-color: #b45309; }
+        .recharge-btn {
+            background-color: #16a34a;
+        }
+        .recharge-btn:hover {
+            background-color: #15803d;
+        }
+        .ref-btn {
+            background-color: #d97706;
+        }
+        .ref-btn:hover {
+            background-color: #b45309;
+        }
         #status {
             margin-top: 10px;
             font-size: 14px;
@@ -93,9 +101,10 @@
         </div>
 
         <p>বিজ্ঞাপন দেখে পয়েন্ট অর্জন করুন!</p>
+        
         <button onclick="showAd()">বিজ্ঞাপন দেখুন (Watch Ad)</button>
 
-        <input type="number" id="phoneNumber" placeholder="আপনার নম্বর (যেমন: 017xxxxxxxx)" />
+        <input type="number" id="phoneNumber" placeholder="আপনার মোবাইল নম্বর দিন (যেমন: 017xxxxxxxx)" />
         
         <select id="operator">
             <option value="GP">Grameenphone (GP)</option>
@@ -106,15 +115,15 @@
         </select>
 
         <button class="recharge-btn" onclick="openRecharge()">মোবাইল রিচার্জ করুন</button>
-        <button class="ref-btn" onclick="shareReferral()">বন্ধুকে ইনভাইট করুন (Share)</button>
         
+        <button class="ref-btn" onclick="shareReferral()">বন্ধুকে ইনভাইট করুন (Share)</button>
         <div class="ref-box">আপনার রেফার লিংক: <br><span id="refLink">লোড হচ্ছে...</span></div>
+
         <div id="status"></div>
     </div>
 
     <script>
         window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
 
         let user = window.Telegram.WebApp.initDataUnsafe.user;
         let userId = user ? user.id : 'guest_' + Math.floor(Math.random() * 1000000);
@@ -122,6 +131,7 @@
         let balanceKey = 'user_balance_' + userId;
         let adCountKey = 'user_adCount_' + userId;
 
+        // নতুন ইউজার ১০০ পয়েন্ট বোনাস পাবে
         let balance = localStorage.getItem(balanceKey) ? parseInt(localStorage.getItem(balanceKey)) : 100;
         let adCount = localStorage.getItem(adCountKey) ? parseInt(localStorage.getItem(adCountKey)) : 0;
 
@@ -132,11 +142,12 @@
         document.getElementById("balance").innerText = balance;
         document.getElementById("adCount").innerText = adCount;
 
-        let botUsername = "my_recharge_x_bot"; 
+        // আপনার বটের ইউজারনেম নিচে দিন
+        let botUsername = "mabulbasar386_bot"; 
         let referralLink = `https://t.me/${botUsername}?start=ref_${userId}`;
         document.getElementById("refLink").innerText = referralLink;
 
-        let adController = window.Adsgram.init({ blockId: "int-43084" });
+        const adController = window.Adsgram.init({ blockId: "int-43084" });
 
         function showAd() {
             const statusDiv = document.getElementById("status");
@@ -146,11 +157,13 @@
                 .then((result) => {
                     balance += 10;
                     adCount += 1;
+
                     localStorage.setItem(balanceKey, balance);
                     localStorage.setItem(adCountKey, adCount);
 
                     document.getElementById("balance").innerText = balance;
                     document.getElementById("adCount").innerText = adCount;
+
                     statusDiv.innerText = "অভিনন্দন! আপনি ১০ পয়েন্ট পেয়েছেন।";
                 })
                 .catch((result) => {
@@ -160,23 +173,30 @@
 
         function openRecharge() {
             const statusDiv = document.getElementById("status");
-            const phone = document.getElementById("phoneNumber").value.trim();
+            const phone = document.getElementById("phoneNumber").value;
             const operator = document.getElementById("operator").value;
 
-            if (!phone.startsWith("01") || phone.length !== 11) {
+            if (balance < 100) {
+                statusDiv.innerText = "রিচার্জ করতে কমপক্ষে ১০০ পয়েন্ট প্রয়োজন!";
+                return;
+            }
+
+            if (phone.length < 11) {
                 statusDiv.innerText = "দয়া করে সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন!";
                 return;
             }
 
-            // সরাসরি আপনার ইনবক্সে পাঠানোর ইউজারনেম
-            let adminUsername = "Jou904"; 
-            
-            let message = `🔔 নতুন রিচার্জ রিকোয়েস্ট!\n\n👤 ইউজার আইডি: ${userId}\n📱 নম্বর: ${phone}\n⚡ অপারেটর: ${operator}\n💰 পয়েন্ট: ${balance}`;
+            // আপনার টেলিগ্রাম ইউজারনেম
+            let adminUsername = "mabulbasar386"; 
+            let message = `নতুন রিচার্জ রিকোয়েস্ট!\nইউজার আইডি: ${userId}\nনম্বর: ${phone}\nঅপারেটর: ${operator}\nপয়েন্ট খরচ: 100`;
             
             let url = `https://t.me/${adminUsername}?text=` + encodeURIComponent(message);
             window.Telegram.WebApp.openTelegramLink(url);
 
-            statusDiv.innerText = "টেলিগ্রাম অ্যাপ ওপেন হচ্ছে, মেসেজ সেন্ড করুন!";
+            balance -= 100;
+            localStorage.setItem(balanceKey, balance);
+            document.getElementById("balance").innerText = balance;
+            statusDiv.innerText = "আপনার রিচার্জ রিকোয়েস্ট পাঠানো হয়েছে!";
         }
 
         function shareReferral() {
